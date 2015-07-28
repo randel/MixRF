@@ -63,7 +63,7 @@ MixRF <- function(Y, x, random, data, initialRandomEffects=0,
     oldLogLik <- newLogLik
     
     # Extract random effects to make the new adjusted target
-    AllEffects <- predict(lmefit)-fixef(lmefit)
+    AllEffects <- predict(lmefit)
     
     #  y-Zb
     AdjustedTarget <- Target - AllEffects
