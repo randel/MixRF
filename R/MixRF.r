@@ -53,7 +53,7 @@ MixRF <- function(Y, x, random, data, initialRandomEffects=0,
     resi = Target - rf$predicted
     
     ## Estimate New Random Effects and Errors using lmer
-    f0 = as.formula(paste0('resi~',random))
+    f0 = as.formula(paste0('resi ~ -1 + ',random))
     lmefit <- lmer(f0, data=data)
     
     # check convergence
