@@ -25,7 +25,7 @@ Jiebiao Wang and Lin S. Chen
 Maintainer: Jiebiao Wang <randel.wang@gmail.com>
 }
 \references{
-Wang J, Gamazon ER, Pierce BL, Stranger BE, Im HK, Gibbons RD, Cox NJ, Nicolae DL and Chen LS. 
+Wang, J., Gamazon, E.R., Pierce, B.L., Stranger, B.E., Im, H.K., Gibbons, R.D., Cox, N.J., Nicolae, D.L. and Chen, L.S. 
 (2015) Imputing gene expression in uncollected tissues within and beyond GTEx. Submitted. 
 }
 \keyword{ package }

@@ -7,4 +7,4 @@ This package offers random-forest-based functions to impute clustered incomplete
 
 ### Reference
 
-Wang J, Gamazon ER, Pierce BL, Stranger BE, Im HK, Gibbons RD, Cox NJ, Nicolae DL and Chen LS. (2015) Imputing gene expression in uncollected tissues within and beyond GTEx. Submitted.
+Wang, J., Gamazon, E.R., Pierce, B.L., Stranger, B.E., Im, H.K., Gibbons, R.D., Cox, N.J., Nicolae, D.L. and Chen, L.S. (2015) Imputing gene expression in uncollected tissues within and beyond GTEx. Submitted.
