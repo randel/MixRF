@@ -9,20 +9,25 @@
 #'   the corresponding gene. The order of the list should correspond to the order of genes in Ydat.
 #' @param snp.dat A matrix of genotype. Each row is a sample and each column corresponds to one SNP. The column names should match eqtl.lis.
 #' @param cov A matrix of covariates. Each row is a sample and each column corresponds to one covariate. For example, age, gender.
-#' @param iPC The option is used only when iPC=TRUE. When it is,  the imputed PCs (iPCs) for each tissue type will be constructed 
+#' @param iPC An option. When it is TRUE, the imputed PCs (iPCs) for each tissue type will be constructed 
 #'   based on the combined observed and imputed data on the selected genes. The iPCs will be adjusted as covariates 
 #'   in the imputation. 
 #' @param idx.selected.gene.iPC The option is used only when iPC=TRUE. When it is, one may select a subset of genes and impute 
 #'   those first to construct iPCs.
-#' @param parallel.size A numerical value specifying the number of CPUs/cores available for parallel computing.
+#' @param parallel.size A numerical value specifying the number of CPUs/cores/processors available for parallel computing.
+#' @param correlation The option to calculate the imputation correlation using cross-validation or not. The default is FLASE.
+#' @param nCV The option is used only when correlation=TRUE. The number of folds for cross-validation. The default is 3 folds.
 #'
-#' @return An nxpxT array of imputed and observed expression data. The observed values in Ydat are still kept and the missing values in Ydat are imputed.
+#' @return An nxpxT array of imputed and observed expression data. The observed values in Ydat are still kept and the missing values in Ydat are imputed. 
+#' When the user chooses to calculate the imputation correlation using cross-validation (correlation=TRUE), the estimated imputation correlation (cor)
+#' will also be returned in a list together with the imputed data (Yimp).
 
 #' @export
 #' @examples
 #' \dontrun{
 #' data(sim)
-#' 
+#' library(parallel)
+#' library(doParallel)
 #' idx.selected.gene.iPC = which(sapply(sim$eqtl.lis,length)>=1)
 #' 
 #' Yimp = MixRF.impute(sim$Ydat, sim$eqtl.lis, sim$snp.dat, sim$cov, iPC=TRUE, idx.selected.gene.iPC,
@@ -30,9 +35,12 @@
 #' }
 #'
 MixRF.impute <- function(Ydat, eqtl.lis, snp.dat, cov=NULL, iPC=TRUE, idx.selected.gene.iPC=NULL, 
-                         parallel.size=1){
+                         parallel.size=1, correlation=FALSE, nCV=3){
   
   MixRF.impute.single <- function(Yi, eqtl.lis.i, snp.dat, cov=NULL, iPC.cov=NULL){
+    
+    library(randomForest)
+    library(lme4)
     
     MixRF <- function(data, initialRandomEffects=0, 
                       ErrorTolerance=0.001, MaxIterations=1000) {
@@ -194,8 +202,8 @@ MixRF.impute <- function(Ydat, eqtl.lis, snp.dat, cov=NULL, iPC=TRUE, idx.select
     dat = newdata[!is.na(Ymat),]
     
     ### MixRF
-    REEMresult <- MixRF(data=dat)
-    fitted.y = predict.MixRF(REEMresult, newdata, id=newdata$ID, EstimateRandomEffects=TRUE)
+    result <- MixRF(data=dat)
+    fitted.y = predict.MixRF(result, newdata, id=newdata$ID, EstimateRandomEffects=TRUE)
     
     #   resid.y = Ymat - as.vector(fitted.y)
     
@@ -206,12 +214,14 @@ MixRF.impute <- function(Ydat, eqtl.lis, snp.dat, cov=NULL, iPC=TRUE, idx.select
   
   
   snp.dat = snp.dat[,unique(unlist(eqtl.lis))]
+  iPC.cov = NULL
+  g = ncol(Ydat)
   
   #set up parallel backend
   cl <- makeCluster(parallel.size)
   registerDoParallel(cl)
   
-  if (iPC==TRUE){
+  if(iPC==TRUE) {
     g = length(idx.selected.gene.iPC)
     
     #loop
@@ -246,9 +256,7 @@ MixRF.impute <- function(Ydat, eqtl.lis, snp.dat, cov=NULL, iPC=TRUE, idx.select
     
   }
   
-  g = ncol(Ydat)
-  
-  #loop
+  # loop
   ls <- foreach(i=1:g) %dopar% {
     MixRF.impute.single(Yi=Ydat[,i,], eqtl.lis=eqtl.lis[[i]], snp.dat, cov=cov, 
                         iPC.cov=iPC.cov)
@@ -261,6 +269,73 @@ MixRF.impute <- function(Ydat, eqtl.lis, snp.dat, cov=NULL, iPC=TRUE, idx.select
   ### observed values
   Yimp[!is.na(Ydat)] = Ydat[!is.na(Ydat)]
   
+  
+  if(correlation) {
+    ### use cross-validation to estimate correlation
+    
+    ## This function will split the data into nCV fold, and return the list of CV samples. 
+    ## When the option no.NA is true, we will find the split that each sample has at least one tissue observed.
+    
+    get.CVlist = function(nCV, Ydat, no.NA=TRUE) {
+      
+      nT = dim(Ydat)[3]
+      if (no.NA==FALSE){
+        indi.lis=list()
+        for (ti in 1:nT){    
+          av.samp = which(apply(Ydat[,,ti],1,function(x) mean(is.na(x)))!=1) 
+          indi.lis[[ti]] =  split(sample(av.samp), 1:nCV)
+        }
+      } else {
+        indi.lis = list()
+        for (ti in 1:nT){
+          av.samp = which(apply(Ydat[,,ti],1,function(x) mean(is.na(x)))!=1) 
+          indi.lis[[ti]] =  split(sample(av.samp), 1:nCV)
+        }
+        for (k in 1:nCV) {
+          Exp.test = Ydat[,1,]
+          for (ti in 1:nT) Exp.test[indi.lis[[ti]][[k]], ti] = NA
+          samp.na = rowSums(!is.na(Exp.test))
+          
+          # add a random tissue to a subject without any tissues
+          if(sum(samp.na==0)>0) {
+            for(i in which(samp.na==0)) {
+              ti = sample(which(!is.na(Ydat[i,1,])), 1)
+              indi.lis[[ti]][[k]] = indi.lis[[ti]][[k]][indi.lis[[ti]][[k]]!=i]
+            }
+          }
+        }
+      }
+      indi.lis=lapply(indi.lis,function(x) lapply(x, function(z) sort(z)))
+      return(indi.lis)
+    }
+    
+    indi.lis_k = get.CVlist(nCV, Ydat, no.NA=TRUE)
+    
+    Yimp_cv = array(NA, dim=dim(Ydat))
+    
+    for(k in 1:nCV) {
+      print(k)
+      nT = dim(Ydat)[3]
+      Ymis_k = Ydat
+      for (ti in 1:nT) {
+        Ymis_k[indi.lis_k[[ti]][[k]], , ti] = NA
+      }
+      
+      ls <- foreach(i=1:g) %dopar% {
+        MixRF.impute.single(Yi=Ymis_k[,i,], eqtl.lis=eqtl.lis[[i]], snp.dat, cov=cov, 
+                            iPC.cov=iPC.cov)
+      }
+      Yimp_k = Ymis_k
+      for(i in 1:g){
+        Yimp_k[,i,] = ls[[i]]
+      }
+      for(ti in 1:nT) {
+        Yimp_cv[indi.lis_k[[ti]][[k]], , ti] = Yimp_k[indi.lis_k[[ti]][[k]], , ti]
+      }
+    }
+    cor_g = sapply(1:g, function(i) cor(as.vector(Yimp_cv[,i,]), as.vector(Ydat[,i,]), method='spearman', use='pairwise'))
+  }
+  
   stopCluster(cl)
-  return(Yimp)
+  if(correlation) return(list(Yimp=Yimp, cor=cor_g)) else return(Yimp)
 }
