@@ -26,7 +26,6 @@
 #' @examples
 #' \dontrun{
 #' data(sim)
-#' library(parallel)
 #' library(doParallel)
 #' idx.selected.gene.iPC = which(sapply(sim$eqtl.lis,length)>=1)
 #' 
