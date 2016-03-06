@@ -14,4 +14,4 @@ devtools::install_github('randel/MixRF')
 
 ### Reference
 
-Wang, J., Gamazon, E.R., Pierce, B.L., Stranger, B.E., Im, H.K., Gibbons, R.D., Cox, N.J., Nicolae, D.L. and Chen, L.S. (2016) Imputing gene expression in uncollected tissues within and beyond GTEx. In Press.
+Wang, J., Gamazon, E. R., Pierce, B. L., Stranger B. E., Im, H. K., Gibbons, R. D., Cox, N. J., Nicolae, D. L., & Chen, L. S. (2016). Imputing Gene Expression in Uncollected Tissues Within and Beyond GTEx. *American Journal of Human Genetics*. In Press.
