@@ -11,15 +11,15 @@
 #' @examples
 #'
 # source('MixRF.r')
-#
-# library(lme4)
-# library(randomForest)
-# data(sleepstudy)
-#
-# tmp = MixRF(Y=sleepstudy$Reaction, x=as.data.frame(sleepstudy$Days), random='(Days|Subject)',
-#             data=sleepstudy, initialRandomEffects=0, ErrorTolerance=0.01, MaxIterations=100)
-#
-# pred = predict.MixRF(object=tmp, newdata=sleepstudy, EstimateRE=TRUE)
+#'
+#' library(lme4)
+#' library(randomForest)
+#' data(sleepstudy)
+#'
+#' tmp = MixRF(Y=sleepstudy$Reaction, x=as.data.frame(sleepstudy$Days), random='(Days|Subject)',
+#'             data=sleepstudy, initialRandomEffects=0, ErrorTolerance=0.01, MaxIterations=100)
+#'
+#' pred = predict.MixRF(object=tmp, newdata=sleepstudy, EstimateRE=TRUE)
 
 predict.MixRF = function(object, newdata, id=NULL, EstimateRE=TRUE){
 

@@ -13,33 +13,31 @@
 #'
 #' @return A list contains the random forest, mixed model, and random effects.
 #' See the example below for the usage. A predict() function is also available below.
-
-#' @export
 #' @examples
 #'
 #' # example data (http://stats.stackexchange.com/questions/70783/how-to-assess-the-fit-of-a-binomial-glmm-fitted-with-lme4-1-0)
-# dat <- read.table("http://pastebin.com/raw.php?i=vRy66Bif")
-#
-# library(party)
-# library(lme4)
-#
-# source('MixRFb.r')
-# system.time(tmp <- MixRFb(Y=dat$true, x='factor(distance) + consequent + factor(direction) + factor(dist)', random='(1|V1)',
-#                           data=dat, initialRandomEffects=0,
-#                           ErrorTolerance=1, MaxIterations=200,
-#                           ErrorTolerance0=0.3, MaxIterations0=15, verbose=T))
-#
-# # tmp$forest
-# # tmp$MixedModel
-# # tmp$RandomEffects
-#
-# # eta
-# pred1 = predict.MixRF(tmp, dat, EstimateRE=TRUE)
-# prob = 1/(1+exp(-pred1))
-# res = (prob>.5)
-#
-# # classification
-# table(res,dat$true)
+#' dat <- read.table("http://pastebin.com/raw.php?i=vRy66Bif")
+#'
+#' library(party)
+#' library(lme4)
+#'
+#' source('MixRFb.r')
+#' system.time(tmp <- MixRFb(Y=dat$true, x='factor(distance) + consequent + factor(direction) + factor(dist)', random='(1|V1)',
+#'                           data=dat, initialRandomEffects=0,
+#'                           ErrorTolerance=1, MaxIterations=200,
+#'                           ErrorTolerance0=0.3, MaxIterations0=15, verbose=T))
+#'
+#' # tmp$forest
+#' # tmp$MixedModel
+#' # tmp$RandomEffects
+#'
+#' # eta
+#' pred1 = predict.MixRF(tmp, dat, EstimateRE=TRUE)
+#' prob = 1/(1+exp(-pred1))
+#' res = (prob>.5)
+#'
+#' # classification
+#' table(res,dat$true)
 
 
 

@@ -14,18 +14,18 @@
 #' @export
 #' @examples
 #'
-# source('MixRF.r')
-#
-# library(lme4)
-# library(randomForest)
-# data(sleepstudy)
-#
-# tmp = MixRF(Y=sleepstudy$Reaction, x=as.data.frame(sleepstudy$Days), random='(Days|Subject)',
-#             data=sleepstudy, initialRandomEffects=0, ErrorTolerance=0.01, MaxIterations=100)
-#
-# tmp$forest
-# tmp$MixedModel
-# tmp$RandomEffects
+#' source('MixRF.r')
+#'
+#' library(lme4)
+#' library(randomForest)
+#' data(sleepstudy)
+#'
+#' tmp = MixRF(Y=sleepstudy$Reaction, x=as.data.frame(sleepstudy$Days), random='(Days|Subject)',
+#'             data=sleepstudy, initialRandomEffects=0, ErrorTolerance=0.01, MaxIterations=100)
+#'
+#' tmp$forest
+#' tmp$MixedModel
+#' tmp$RandomEffects
 
 
 MixRF = function(Y, x, random, data, initialRandomEffects=0,
