@@ -4,10 +4,10 @@
  A random-forest-based algorithm for imputing clustered incomplete data
 }
 \description{
-This package offers random-forest-based functions to impute clustered incomplete data. 
-The package is tailored for but not limited to imputing multitissue expression data, 
-in which a gene's expression is measured on the collected tissues of an individual 
-but missing on the uncollected tissues. 
+This package offers random-forest-based functions to impute clustered incomplete data.
+The package is tailored for but not limited to imputing multitissue expression data,
+in which a gene's expression is measured on the collected tissues of an individual
+but missing on the uncollected tissues.
 }
 \details{
 \tabular{ll}{
@@ -25,8 +25,8 @@ Jiebiao Wang and Lin S. Chen
 Maintainer: Jiebiao Wang <randel.wang@gmail.com>
 }
 \references{
-Wang, J., Gamazon, E.R., Pierce, B.L., Stranger, B.E., Im, H.K., Gibbons, R.D., Cox, N.J., Nicolae, D.L. and Chen, L.S. 
-(2015) Imputing gene expression in uncollected tissues within and beyond GTEx. Submitted. 
+Wang, J., Gamazon, E.R., Pierce, B.L., Stranger, B.E., Im, H.K., Gibbons, R.D., Cox, N.J., Nicolae, D.L. and Chen, L.S.
+(2016) Imputing gene expression in uncollected tissues within and beyond GTEx. http://dx.doi.org/10.1016/j.ajhg.2016.02.020
 }
 \keyword{ package }
 \seealso{
