@@ -5,8 +5,8 @@
 #' @param Ydat An array of expression data of dimension sample-by-gene-by-tissue, nxpxT, where n is sample size.
 #'   p is the number of genes, and T is the number of tissues.  Ydat[,1,] is a matrix of the first gene expression
 #'   in T tissues for n individuals, nxT. Ydat[,,1] is a nxp matrix of the expression data of p genes in the first tissue.
-#' @param eqtl.lis A list of eQTL names of length p. Each of the element in the list contains the name of the eQTLs for
-#'   the corresponding gene. The order of the list should correspond to the order of genes in Ydat.
+#' @param eqtl.lis A list of eQTL names of length p. Each element in the list contains the name of the eQTLs for
+#'   the corresponding gene. The order of the list should correspond to the order of genes in Ydat. The code and example to calculate eQTLs can be found at https://github.com/randel/MixRF/blob/master/R/eqtl.r.
 #' @param snp.dat A matrix of genotype. Each row is a sample and each column corresponds to one SNP. The column names should match eqtl.lis.
 #' @param cov A matrix of covariates. Each row is a sample and each column corresponds to one covariate. For example, age, gender.
 #' @param iPC An option. When it is TRUE, the imputed PCs (iPCs) for each tissue type will be constructed
@@ -15,7 +15,7 @@
 #' @param idx.selected.gene.iPC The option is used only when iPC=TRUE. When it is, one may select a subset of genes and impute
 #'   those first to construct iPCs.
 #' @param parallel.size A numerical value specifying the number of CPUs/cores/processors available for parallel computing.
-#' @param correlation The option to calculate the imputation correlation using cross-validation or not. The default is FLASE.
+#' @param correlation The option to calculate the imputation correlation using cross-validation or not. The default is FALSE.
 #' @param nCV The option is used only when correlation=TRUE. The number of folds for cross-validation. The default is 3 folds.
 #'
 #' @return An nxpxT array of imputed and observed expression data. The observed values in Ydat are still kept and the missing values in Ydat are imputed.
@@ -24,6 +24,7 @@
 
 #' @export
 #' @import doParallel randomForest lme4 foreach parallel
+#' @importFrom stats as.formula coef cor lm logLik na.exclude predict
 #' @examples
 #' \dontrun{
 #' data(sim)

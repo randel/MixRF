@@ -12,8 +12,8 @@ MixRF.impute(Ydat, eqtl.lis, snp.dat, cov = NULL, iPC = TRUE,
 p is the number of genes, and T is the number of tissues.  Ydat[,1,] is a matrix of the first gene expression
 in T tissues for n individuals, nxT. Ydat[,,1] is a nxp matrix of the expression data of p genes in the first tissue.}
 
-\item{eqtl.lis}{A list of eQTL names of length p. Each of the element in the list contains the name of the eQTLs for
-the corresponding gene. The order of the list should correspond to the order of genes in Ydat.}
+\item{eqtl.lis}{A list of eQTL names of length p. Each element in the list contains the name of the eQTLs for
+the corresponding gene. The order of the list should correspond to the order of genes in Ydat. The code and example to calculate eQTLs can be found at https://github.com/randel/MixRF/blob/master/R/eqtl.r.}
 
 \item{snp.dat}{A matrix of genotype. Each row is a sample and each column corresponds to one SNP. The column names should match eqtl.lis.}
 
@@ -28,7 +28,7 @@ those first to construct iPCs.}
 
 \item{parallel.size}{A numerical value specifying the number of CPUs/cores/processors available for parallel computing.}
 
-\item{correlation}{The option to calculate the imputation correlation using cross-validation or not. The default is FLASE.}
+\item{correlation}{The option to calculate the imputation correlation using cross-validation or not. The default is FALSE.}
 
 \item{nCV}{The option is used only when correlation=TRUE. The number of folds for cross-validation. The default is 3 folds.}
 }

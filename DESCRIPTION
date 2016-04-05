@@ -1,7 +1,7 @@
 Package: MixRF
 Title: A Random-Forest-Based Approach for Imputing Clustered Incomplete Data
 Version: 1.0
-Date: 2016-04-04
+Date: 2016-04-05
 Author: Jiebiao Wang and Lin S. Chen
 Maintainer: Jiebiao Wang <randel.wang@gmail.com>
 Description: It offers random-forest-based functions to impute clustered
@@ -13,7 +13,6 @@ Depends:
     doParallel,
     randomForest,
     lme4,
-    MatrixEQTL,
     foreach
 URL: https://github.com/randel/MixRF
 BugReports: https://github.com/randel/MixRF/issues

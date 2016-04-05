@@ -26,7 +26,7 @@ A list contains the random forest, mixed model, and random effects.
 See the example below for the usage.
 }
 \description{
-Mixed Random Forest
+The function to fit a random forest with random effects.
 }
 \examples{
 

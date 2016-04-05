@@ -12,6 +12,8 @@
 
 #' @export
 #' @import doParallel MatrixEQTL foreach parallel
+#' @importFrom stats pnorm
+#' @importFrom utils capture.output
 #' @examples
 #' \dontrun{
 #' # a fake example
@@ -20,32 +22,32 @@
 #' }
 
 get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
-
+  
   ## generate files for MatrixEQTL
-
+  
   gen.eQTL.dat <- function(ti, Ynew, ssnpDat, snp.info, gene.info, cov,geneID, cisDist,cis.p, trans.p, filenam="temp") {
-
+    library(MatrixEQTL)
     av.samp = which(!is.na(Ynew[,1,ti]))
-
+    
     snpsMat= t(ssnpDat[av.samp,])
     snps = SlicedData$new()
     snps$CreateFromMatrix(snpsMat)
-
+    
     ID=colnames(snpsMat)
     exprMat=t(Ynew[av.samp, ,ti])
     colnames(exprMat) <- ID
     rownames(exprMat) <- geneID
     expr = SlicedData$new()
     expr$CreateFromMatrix(exprMat)
-
+    
     cvrtMat = t(cov[av.samp,])
     colnames(cvrtMat) <- ID
     cvrt = SlicedData$new()
     cvrt$CreateFromMatrix(cvrtMat)
-
+    
     options(MatrixEQTL.dont.preserve.gene.object = TRUE);
-
-
+    
+    
     ### Run Matrix eQTL
     me = Matrix_eQTL_main(
       snps = snps,
@@ -64,15 +66,15 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
       pvalue.hist = FALSE,
       noFDRsaveMemory = TRUE);
   }
-
-
+  
+  
   # cl is for parallel computing, generated from the parallel package
   gen.eQTL.files <- function(cl=NULL, Ynew, ssnpDat, snp.info, gene.info, cov=cov, cisDist=1e6, cis.p=0.01, trans.p=10^(-5),
                              filenam="temp") {
-
+    
     nT=dim(Ynew)[3]
     geneID=as.vector(gene.info$geneID)
-
+    
     if (is.null(cl)){
       for (ti in 1:nT) gen.eQTL.dat(ti, Ynew=Ynew, ssnpDat=ssnpDat, snp.info=snp.info, gene.info=gene.info,
                                     cov=cov, geneID=geneID, cisDist=cisDist,cis.p=cis.p, trans.p=trans.p, filenam=filenam)
@@ -81,11 +83,11 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
                 cov=cov, geneID=geneID, cisDist=cisDist, cis.p=cis.p, trans.p=trans.p, filenam=filenam)
     }
   }
-
-
-
+  
+  
+  
   ## Stouffer's method to combine tissue-specific eQTLs
-
+  
   Stouffer.test <- function(z, w) { # z is a vector of Z-stat
     if (missing(w)) {
       w <- rep(1, length(z))/length(z)
@@ -93,14 +95,14 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
       if (length(w) != length(z))
         stop("Length of z and w must equal!")
     }
-
+    
     Z  <- sum(w*z)/sqrt(sum(w^2))
     p.val <- 2*(1-pnorm(abs(Z)))
     return(p.val)
   }
-
-
-
+  
+  
+  
   ## calculate cis-eQTLs
   # for 1 gene
   get_cis1gene <- function(gene_i, XX, nover=1) {
@@ -109,7 +111,7 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
     pval = as.data.frame(matrix(NA,length(snp),3))
     pval[,1] = rep(gene_i,length(snp))
     pval[,2] = snp
-
+    
     j = 0
     for(i in snp){
       j = j + 1
@@ -118,12 +120,12 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
     }
     return(pval)
   }
-
-
+  
+  
   # parallel version
-
+  
   get_commonCis <- function(cl=NULL, nT=9, nover=1){
-
+    
     filenam="cis"
     typ='cis'
     XX = NULL
@@ -131,15 +133,15 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
       xx = matrix(scan(paste0(filenam,ti,"_",typ,".txt"), what=""), byrow=T, ncol=5)[, c(1,2,4)]
       XX = rbind(XX,xx[-1,])
     }
-
+    
     gene = unique(XX[,2])
-
+    
     system.time(tmp <- parLapply(cl,gene,get_cis1gene,XX=XX, nover=nover))
-
+    
     return(tmp)
   }
-
-
+  
+  
   # convert results for Stouffer's method to an eQTL list
   stouffer2cisList <- function(eQTL_stouffer, pcut){
     elist = list()
@@ -156,14 +158,14 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
     names(elist) <- idx
     return(elist)
   }
-
-
-
+  
+  
+  
   ## calculate trans-eQTLs
-
+  
   get_transOver <- function(geneID, filenam, nT=9, pcut=NULL){
     typ='trans'
-
+    
     xx2lis <- list()
     for (ti in 1:nT){
       xx = matrix(scan(paste0(filenam,ti,"_",typ,".txt"), what=""), byrow=T, ncol=5)[, c(1,2,5)]
@@ -174,7 +176,7 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
         idx=which(as.numeric(xx[,3])<=pcut)
         xx=xx[idx,-3]
       }
-
+      
       xx2 <- NULL
       for (i in 1:ceiling(nrow(xx)/10000)){
         idx <- (i-1)*10000+1:10000
@@ -183,7 +185,7 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
       }
       xx2lis[[ti]] <- xx2
     }
-
+    
     overlap <- NULL
     for (i in 1:nT) {
       # find common elements from nT-1 tissues
@@ -191,7 +193,7 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
     }
     overlap <- unique(overlap)
     overlap <- matrix(unlist(strsplit(overlap,split=";")),byrow=T,ncol=2)
-
+    
     etlis <- list()
     etlis[[length(geneID)]] <- character(0)
     for (i in 1:nrow(overlap)){
@@ -199,12 +201,12 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
       etlis[[ii]] <- c(etlis[[ii]], overlap[i,1])
     }
     names(etlis) <- geneID
-
+    
     return(etlis)
   }
-
-
-
+  
+  
+  
   # combine cis, trans eQTLs
   combo <- function(eQTL.lis.cis, eQTL.lis.trans) {
     eQTL.lis.all <- list()
@@ -217,62 +219,63 @@ get_eqtl = function(ncore, Ynew, ssnpDat, snp.info, gene.info, cov) {
     }
     return(eQTL.lis.all)
   }
-
-
+  
+  
   cl = makeCluster(ncore)
-
+  
   nT = dim(Ynew)[3]
-
-
+  
+  
   ###### Stouffer's cis-list
   tmp = capture.output({gen.eQTL.files(cl=cl, Ynew, ssnpDat, snp.info, gene.info, cov=cov,
                                        cisDist=1e6, cis.p=1, trans.p=0, filenam='cis')})
   cis_stouffer = get_commonCis(cl, nT=nT)
-
+  
   names(cis_stouffer) <- cisnam <- sapply(cis_stouffer,function(x) x[1,1])
   cis_list <- list()
-
+  
   gnam <- as.vector(gene.info$geneID)
   colnames(Ynew) <- gnam
-
+  
   nGene=dim(Ynew)[2]
-
+  
   cis_list[[length(gnam)]] <- character(0)
   names(cis_list) <- gnam
   oolist <- stouffer2cisList(cis_stouffer, pcut=1e-6)
   cis_list[names(oolist)] <- oolist
-
-
+  
+  
   # trans-list
   eqtl.new.lis <- list()
   snam <- colnames(ssnpDat)
   for (j in 1:ceiling(length(snam)/5000)) {
-    print(j)
+    # progress
+    print(paste0(round(100*j/ceiling(length(snam)/5000)),'%'))
     idx <- (j-1)*5000+1:5000
     idx <- idx[idx<=length(snam)]
     snamj <- snam[idx]
     snp.infoS <- snp.info[idx,]
     ssnpDatS <- ssnpDat[,idx]
-    # already parallized in the tissue dimension
+    # parallized in the tissue dimension
     tmp = capture.output({gen.eQTL.files(cl=cl, Ynew, ssnpDatS, snp.infoS, gene.info, cov=cov, cisDist=1e6, cis.p=0.05, trans.p=0.05,
                                          filenam='trans')})
-
+    
     ## trans-eQTLs, note that only focus on the genes
     eqtl.new = NULL
     eqtl.new[[length(gnam)]] <- character(0)
-
+    
     try(eqtl.new <- get_transOver(geneID=gnam, filenam='trans', nT=nT), silent=T)
     eqtl.new.lis[[j]] <- eqtl.new
   }
-
-
+  
+  
   trans_list <- list()
   for (i in 1:nGene) trans_list[[i]] <- unique(unlist(sapply(eqtl.new.lis,function(x) x[[i]])))
-
-
+  
+  
   eqtl.comb <- combo(cis_list, trans_list)
-
+  
   stopCluster(cl)
-
+  
   return(eqtl.comb)
 }

@@ -1,5 +1,7 @@
 #' Mixed Random Forest
 #'
+#' The function to fit a random forest with random effects.
+#'
 #' @param Y The outcome variable.
 #' @param X A data frame or matrix contains the predictors.
 #' @param random A string in lme4 format indicates the random effect model.
