@@ -1,7 +1,7 @@
 #' Mixed Random Forest
 #'
 #' @param Y The outcome variable.
-#' @param x A data frame contains the predictors.
+#' @param X A data frame or matrix contains the predictors.
 #' @param random A string in lme4 format indicates the random effect model.
 #' @param data The data set as a data frame.
 #' @param initialRandomEffects The initial values for random effects.
@@ -9,26 +9,24 @@
 #' @param MaxIterations The maximum iteration times.
 #'
 #' @return A list contains the random forest, mixed model, and random effects.
-#' See the example below for the usage. A predict() function is available for request.
+#' See the example below for the usage.
 
 #' @export
+#' @import randomForest lme4
 #' @examples
 #'
-#' source('MixRF.r')
-#'
-#' library(lme4)
-#' library(randomForest)
+#' \dontrun{
 #' data(sleepstudy)
 #'
-#' tmp = MixRF(Y=sleepstudy$Reaction, x=as.data.frame(sleepstudy$Days), random='(Days|Subject)',
+#' tmp = MixRF(Y=sleepstudy$Reaction, X=as.data.frame(sleepstudy$Days), random='(Days|Subject)',
 #'             data=sleepstudy, initialRandomEffects=0, ErrorTolerance=0.01, MaxIterations=100)
 #'
 #' tmp$forest
 #' tmp$MixedModel
 #' tmp$RandomEffects
+#' }
 
-
-MixRF = function(Y, x, random, data, initialRandomEffects=0,
+MixRF = function(Y, X, random, data, initialRandomEffects=0,
                   ErrorTolerance=0.001, MaxIterations=1000) {
 
   Target = Y
@@ -47,7 +45,7 @@ MixRF = function(Y, x, random, data, initialRandomEffects=0,
     iterations <- iterations+1
 
     # randomForest
-    rf = randomForest(x,AdjustedTarget)
+    rf = randomForest(X, AdjustedTarget)
 
     # y - X*beta (out-of-bag prediction)
     resi = Target - rf$predicted

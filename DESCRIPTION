@@ -1,19 +1,20 @@
 Package: MixRF
-Type: Package
-Title: A random-forest-based approach for imputing clustered incomplete data
+Title: A Random-Forest-Based Approach for Imputing Clustered Incomplete Data
 Version: 1.0
 Date: 2016-04-04
 Author: Jiebiao Wang and Lin S. Chen
 Maintainer: Jiebiao Wang <randel.wang@gmail.com>
-Description: This package offers random-forest-based functions to impute
-    clustered incomplete data. The package is tailored for but not limited to
-    imputing multitissue expression data, in which a gene's expression is measured
-    on the collected tissues of an individual but missing on the uncollected
-    tissues.
+Description: It offers random-forest-based functions to impute clustered
+    incomplete data. The package is tailored for but not limited to imputing
+    multitissue expression data, in which a gene's expression is measured on the
+    collected tissues of an individual but missing on the uncollected tissues.
 License: GPL
 Depends:
     doParallel,
     randomForest,
-    lme4
+    lme4,
+    MatrixEQTL,
+    foreach
 URL: https://github.com/randel/MixRF
 BugReports: https://github.com/randel/MixRF/issues
+RoxygenNote: 5.0.1

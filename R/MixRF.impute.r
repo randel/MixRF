@@ -23,10 +23,11 @@
 #' will also be returned in a list together with the imputed data (Yimp).
 
 #' @export
+#' @import doParallel randomForest lme4 foreach parallel
 #' @examples
 #' \dontrun{
 #' data(sim)
-#' library(doParallel)
+#'
 #' idx.selected.gene.iPC = which(sapply(sim$eqtl.lis,length)>=1)
 #'
 #' Yimp = MixRF.impute(sim$Ydat, sim$eqtl.lis, sim$snp.dat, sim$cov, iPC=TRUE, idx.selected.gene.iPC,
@@ -37,9 +38,6 @@ MixRF.impute <- function(Ydat, eqtl.lis, snp.dat, cov=NULL, iPC=TRUE, idx.select
                          parallel.size=1, correlation=FALSE, nCV=3){
 
   MixRF.impute.single <- function(Yi, eqtl.lis.i, snp.dat, cov=NULL, iPC.cov=NULL){
-
-    library(randomForest)
-    library(lme4)
 
     MixRF <- function(data, initialRandomEffects=0,
                       ErrorTolerance=0.001, MaxIterations=1000) {
@@ -98,7 +96,7 @@ MixRF.impute <- function(Ydat, eqtl.lis, snp.dat, cov=NULL, iPC=TRUE, idx.select
 
 
 
-    predict.MixRF <- function(object, newdata, id=NULL, EstimateRE=TRUE){
+    predict_MixRF <- function(object, newdata, id=NULL, EstimateRE=TRUE){
 
       # Base predictions from the forest part
       if(ncol(newdata)==3) {
@@ -202,7 +200,7 @@ MixRF.impute <- function(Ydat, eqtl.lis, snp.dat, cov=NULL, iPC=TRUE, idx.select
 
     ### MixRF
     result <- MixRF(data=dat)
-    fitted.y = predict.MixRF(result, newdata, id=newdata$ID, EstimateRE=TRUE)
+    fitted.y = predict_MixRF(result, newdata, id=newdata$ID, EstimateRE=TRUE)
 
     #   resid.y = Ymat - as.vector(fitted.y)
 
