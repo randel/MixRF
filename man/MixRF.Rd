@@ -22,7 +22,7 @@ MixRF(Y, X, random, data, initialRandomEffects = 0, ErrorTolerance = 0.001,
 \item{MaxIterations}{The maximum iteration times.}
 }
 \value{
-A list contains the random forest, mixed model, and random effects.
+A list contains the random forest ($forest), mixed model ($MixedModel), and random effects ($RandomEffects).
 See the example below for the usage.
 }
 \description{
@@ -30,15 +30,15 @@ The function to fit a random forest with random effects.
 }
 \examples{
 
-\dontrun{
 data(sleepstudy)
 
 tmp = MixRF(Y = sleepstudy$Reaction, X = as.data.frame(sleepstudy$Days), 
     random = "(Days|Subject)", data = sleepstudy, initialRandomEffects = 0, 
     ErrorTolerance = 0.01, MaxIterations = 100)
 
-tmp$forest
-tmp$MixedModel
-tmp$RandomEffects
-}
+# tmp$forest
+
+# tmp$MixedModel
+
+# tmp$RandomEffects
 }
