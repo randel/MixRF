@@ -6,11 +6,11 @@ MixRF
 This `R` package offers random-forest-based functions to impute clustered incomplete data. The package is tailored for but not limited to imputing multitissue expression data, in which a gene's expression is measured on the collected tissues of an individual but missing on the uncollected tissues.
 
 ### Installation
-1. For the stable version from [CRAN](https://cran.r-project.org/web/packages/MixRF/index.html):
+- For the stable version from [CRAN](https://cran.r-project.org/web/packages/MixRF/index.html):
 ```r
 install.packages('MixRF')
 ```
-2. For the development version (requiring the `devtools` package):
+- For the development version (requiring the `devtools` package):
 ```r
 devtools::install_github('randel/MixRF')
 ```
