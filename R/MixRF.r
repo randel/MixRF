@@ -17,6 +17,8 @@
 #' @import randomForest lme4
 #' @examples
 #'
+#' # load the sleepstudy data set from the lme4 package
+#' library(lme4)
 #' data(sleepstudy)
 #'
 #' tmp = MixRF(Y=sleepstudy$Reaction, X=as.data.frame(sleepstudy$Days), random='(Days|Subject)',
