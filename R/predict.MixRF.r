@@ -23,7 +23,7 @@
 
 predict.MixRF = function(object, newdata, id=NULL, EstimateRE=TRUE){
 
-  forestPrediction = predict(object$forest, x)
+  forestPrediction = predict(object$forest, newdata)
 
   # If we aren't estimating random effects, we
   # just use the forest for prediction.
