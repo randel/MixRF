@@ -21,33 +21,17 @@
 #'
 #' pred = predict.MixRF(object=tmp, newdata=sleepstudy, EstimateRE=TRUE)
 
-predict.MixRF = function(object, newdata, id=NULL, EstimateRE=TRUE){
+    
+predict.MixRF = function(object, newdata, EstimateRE=TRUE){
 
-  forestPrediction = predict(object$forest, newdata)
+  forestPrediction <- predict(object$forest, newdata=newdata, OOB=T)
 
-  # If we aren't estimating random effects, we
-  # just use the forest for prediction.
+  # If not estimate random effects, just use the forest for prediction.
   if(!EstimateRE) return(forestPrediction)
+  
+  RandomEffects <- predict(object$MixedModel, newdata=newdata, allow.new.levels=T)
 
-  # Get the group identifiers if necessary
-  if(is.null(id)) id = as.matrix(object$EffectModel$groups)
-
-  n = length(unique(id))
-  nT = length(forestPrediction)/n
-
-  completePrediction = matrix(forestPrediction, n, nT)
-
-  # Get the identities of the groups in the data
-  uniqueID = unique(id)
-
-  estRE = matrix(0, nrow=n, ncol=1)
-  oRE = object$RandomEffects[[1]]
-  idx.re = as.integer(rownames(oRE))
-  estRE[idx.re,1] = as.vector(oRE[[1]])
-
-  for(i in uniqueID){
-    completePrediction[i,] = completePrediction[i,] + estRE[i,1]
-  }
+  completePrediction = forestPrediction + RandomEffects
 
   return(completePrediction)
 }
