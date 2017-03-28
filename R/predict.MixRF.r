@@ -10,13 +10,15 @@
 #' @export
 #' @examples
 #'
-# source('MixRF.r')
+#' library(MixRF)
 #'
 #' library(lme4)
 #' library(randomForest)
 #' data(sleepstudy)
 #'
-#' tmp = MixRF(Y=sleepstudy$Reaction, x=as.data.frame(sleepstudy$Days), random='(Days|Subject)',
+#' X = as.data.frame(sleepstudy$Days)
+#' colnames(X) = 'Days'
+#' tmp = MixRF(Y=sleepstudy$Reaction, X=X, random='(Days|Subject)',
 #'             data=sleepstudy, initialRandomEffects=0, ErrorTolerance=0.01, MaxIterations=100)
 #'
 #' pred = predict.MixRF(object=tmp, newdata=sleepstudy, EstimateRE=TRUE)
